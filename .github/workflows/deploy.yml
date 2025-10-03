@@ -3,8 +3,16 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
@@ -18,18 +26,26 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'pnpm'
-
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
+        cache: 'npm'
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: |
+        if [ -f package-lock.json ]; then
+          npm ci
+        elif [ -f pnpm-lock.yaml ]; then
+          npm install -g pnpm
+          pnpm install --frozen-lockfile
+        else
+          npm install
+        fi
 
     - name: Build
-      run: pnpm run build
+      run: |
+        if [ -f pnpm-lock.yaml ]; then
+          pnpm run build
+        else
+          npm run build
+        fi
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
@@ -42,14 +58,3 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
-
-# Permissions needed for GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
