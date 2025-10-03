@@ -23,6 +23,7 @@ import {
   ArrowLeft,
   Home
 } from 'lucide-react'
+import { PixSupportModal } from './components/PixSupportModal'
 import './App.css'
 
 // Lista de todas as ferramentas disponíveis
@@ -184,7 +185,10 @@ function App() {
         </ScrollArea>
 
         {/* Footer da Sidebar */}
-        <div className="p-4 border-t border-slate-800 bg-slate-900/50">
+        <div className="p-4 border-t border-slate-800 bg-slate-900/50 space-y-3">
+          <div className="flex justify-center">
+            <PixSupportModal />
+          </div>
           <div className="text-xs text-slate-400 text-center">
             <div className="flex justify-between items-center">
               <span>Total: {ferramentas.length} ferramentas</span>
